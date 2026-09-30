@@ -1,51 +1,107 @@
-<h2><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array">Remove Duplicates from Sorted Array</a></h2> <img src='https://img.shields.io/badge/Difficulty-Easy-brightgreen' alt='Difficulty: Easy' /><hr><p>Given an integer array <code>nums</code> sorted in <strong>non-decreasing order</strong>, remove the duplicates <a href="https://en.wikipedia.org/wiki/In-place_algorithm" target="_blank"><strong>in-place</strong></a> such that each unique element appears only <strong>once</strong>. The <strong>relative order</strong> of the elements should be kept the <strong>same</strong>.</p>
+<h2><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array">Remove Duplicates from Sorted Array</a></h2>
 
-<p>Consider the number of <em>unique elements</em> in&nbsp;<code>nums</code> to be <code>k<strong>​​​​​​​</strong></code>​​​​​​​. <meta charset="UTF-8" />After removing duplicates, return the number of unique elements&nbsp;<code>k</code>.</p>
+<img src='https://img.shields.io/badge/Difficulty-Easy-brightgreen' alt='Difficulty: Easy' />
 
-<p><meta charset="UTF-8" />The first&nbsp;<code>k</code>&nbsp;elements of&nbsp;<code>nums</code>&nbsp;should contain the unique numbers in <strong>sorted order</strong>. The remaining elements beyond index&nbsp;<code>k - 1</code>&nbsp;can be ignored.</p>
+<hr>
 
-<p><strong>Custom Judge:</strong></p>
+<p>Given an integer array <code>nums</code> sorted in <strong>non-decreasing order</strong>, remove the duplicates <strong>in-place</strong> so that each unique element appears only once.</p>
 
-<p>The judge will test your solution with the following code:</p>
+<p>Return the number of unique elements <code>k</code>.</p>
 
-<pre>
-int[] nums = [...]; // Input array
-int[] expectedNums = [...]; // The expected answer with correct length
+<hr>
 
-int k = removeDuplicates(nums); // Calls your implementation
+<h3>Approach</h3>
 
-assert k == expectedNums.length;
-for (int i = 0; i &lt; k; i++) {
-    assert nums[i] == expectedNums[i];
-}
-</pre>
+<p>Because the array is already <strong>sorted</strong>, duplicate numbers are next to each other.</p>
 
-<p>If all assertions pass, then your solution will be <strong>accepted</strong>.</p>
-
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
-
-<pre>
-<strong>Input:</strong> nums = [1,1,2]
-<strong>Output:</strong> 2, nums = [1,2,_]
-<strong>Explanation:</strong> Your function should return k = 2, with the first two elements of nums being 1 and 2 respectively.
-It does not matter what you leave beyond the returned k (hence they are underscores).
-</pre>
-
-<p><strong class="example">Example 2:</strong></p>
-
-<pre>
-<strong>Input:</strong> nums = [0,0,1,1,1,2,2,3,3,4]
-<strong>Output:</strong> 5, nums = [0,1,2,3,4,_,_,_,_,_]
-<strong>Explanation:</strong> Your function should return k = 5, with the first five elements of nums being 0, 1, 2, 3, and 4 respectively.
-It does not matter what you leave beyond the returned k (hence they are underscores).
-</pre>
-
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+<p>We use two pointers:</p>
 
 <ul>
-	<li><code>1 &lt;= nums.length &lt;= 3 * 10<sup>4</sup></code></li>
-	<li><code>-100 &lt;= nums[i] &lt;= 100</code></li>
-	<li><code>nums</code> is sorted in <strong>non-decreasing</strong> order.</li>
+    <li><code>i</code> → position of the last unique number.</li>
+    <li><code>j</code> → checks every number in the array.</li>
 </ul>
+
+<p>If <code>nums[j]</code> is different from <code>nums[i]</code>, we found a new unique number.</p>
+
+<p>So we move <code>i</code> forward and put the new number there.</p>
+
+<h3>Algorithm</h3>
+
+<pre>
+1. Set i = 0.
+2. Start j from 1.
+3. Compare nums[j] with nums[i].
+4. If nums[j] != nums[i]:
+       Move i forward.
+       Put nums[j] at nums[i].
+5. Continue until j reaches the end.
+6. Return i + 1.
+</pre>
+
+<h3>Code</h3>
+
+<pre>
+class Solution:
+    def removeDuplicates(self, nums):
+        i = 0
+
+        for j in range(1, len(nums)):
+            if nums[j] != nums[i]:
+                i += 1
+                nums[i] = nums[j]
+
+        return i + 1
+</pre>
+
+<h3>Example</h3>
+
+<pre>
+nums = [0,0,1,1,1,2,2,3,3,4]
+
+i = 0
+
+j = 1
+0 == 0
+→ duplicate, skip
+
+j = 2
+1 != 0
+→ i = 1
+→ nums[1] = 1
+
+Array:
+[0,1,1,1,1,2,2,3,3,4]
+
+j = 5
+2 != 1
+→ i = 2
+→ nums[2] = 2
+
+Array:
+[0,1,2,1,1,2,2,3,3,4]
+
+Continue...
+
+Final first 5 elements:
+[0,1,2,3,4]
+
+Return 5
+</pre>
+
+<h3>Why This Works</h3>
+
+<p>The array is sorted, so we only need to compare the current number with the last unique number.</p>
+
+<p>Whenever we find a new number, we put it at the next available position.</p>
+
+<h3>Time Complexity</h3>
+
+<p><strong>O(n)</strong> — We go through the array once.</p>
+
+<h3>Space Complexity</h3>
+
+<p><strong>O(1)</strong> — We modify the same array and don't use another array.</p>
+
+<h3>Pattern</h3>
+
+<p><strong>Two Pointers / In-Place Array</strong></p>
