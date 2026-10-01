@@ -40,31 +40,23 @@
 
 <h3>Approach</h3>
 
-<p>We use the <strong>Array Index Marking</strong> technique.</p>
+<p>We use a <strong>Set</strong> to store all the numbers that appear in the array.</p>
 
-<p>Every number in the array is between <code>1</code> and <code>n</code>. We can use each number as an index.</p>
+<p>Then we check every number from <code>1</code> to <code>n</code>.</p>
 
-<p>For every number <code>num</code>, we look at index <code>num - 1</code> and make that value negative. This marks that the number exists in the array.</p>
+<p>If a number is not present in the set, it is missing from the array, so we add it to the result.</p>
 
-<p>After marking all numbers:</p>
-
-<ul>
-	<li>If <code>nums[i]</code> is positive, then <code>i + 1</code> is missing.</li>
-	<li>If <code>nums[i]</code> is negative, then <code>i + 1</code> exists in the array.</li>
-</ul>
+<p>This approach is simple and allows us to check whether a number exists in approximately <strong>O(1)</strong> time.</p>
 
 <h3>Algorithm</h3>
 
 <pre>
-1. Go through every number in nums.
-2. For each number num:
-       Find index = num - 1.
-       Make nums[index] negative.
-3. Go through the array again.
-4. If nums[i] is positive:
-       i + 1 is missing.
-5. Add all missing numbers to the result.
-6. Return the result.
+1. Create a set containing all numbers in nums.
+2. Create an empty result list.
+3. Loop from 1 to n.
+4. If the current number is not in the set:
+       Add it to the result.
+5. Return the result.
 </pre>
 
 <h3>Code</h3>
@@ -72,15 +64,12 @@
 <pre>
 class Solution:
     def findDisappearedNumbers(self, nums):
-        for num in nums:
-            index = abs(num) - 1
-            nums[index] = -abs(nums[index])
-
+        seen = set(nums)
         result = []
 
-        for i in range(len(nums)):
-            if nums[i] > 0:
-                result.append(i + 1)
+        for i in range(1, len(nums) + 1):
+            if i not in seen:
+                result.append(i)
 
         return result
 </pre>
@@ -90,49 +79,57 @@ class Solution:
 <pre>
 nums = [4,3,2,7,8,2,3,1]
 
-After marking the numbers:
+Create a set:
 
-Index:  0  1  2  3  4  5  6  7
-Value: -4 -3 -2 -7  8 -2 -3 -1
+seen = {1,2,3,4,7,8}
 
-The positive values are:
+n = 8
 
-Index 4 → number 5
-Index 5 → number 6
+Check numbers from 1 to 8:
+
+1 → present
+2 → present
+3 → present
+4 → present
+5 → missing
+6 → missing
+7 → present
+8 → present
 
 Answer = [5,6]
 </pre>
 
 <h3>Why This Works</h3>
 
-<p>Each number <code>x</code> should correspond to index <code>x - 1</code>.</p>
+<p>The numbers that can appear in the array are from <code>1</code> to <code>n</code>.</p>
 
-<p>When we see a number, we mark its corresponding index as negative. This tells us that the number exists.</p>
+<p>By storing all existing numbers in a set, we can quickly check whether each number exists.</p>
 
-<p>After processing the entire array, any index that is still positive represents a number that never appeared.</p>
+<p>If a number from <code>1</code> to <code>n</code> is not in the set, that number must be missing from the array.</p>
 
 <p>For example:</p>
 
 <pre>
-Index 4 is still positive
-→ 4 + 1 = 5
-→ 5 is missing
+nums = [1,1]
 
-Index 5 is still positive
-→ 5 + 1 = 6
-→ 6 is missing
+seen = {1}
+
+Check:
+
+1 → present
+2 → missing
+
+Answer = [2]
 </pre>
-
-<p>This allows us to solve the problem without creating a separate set or dictionary.</p>
 
 <h3>Time Complexity</h3>
 
-<p><strong>O(n)</strong> — We go through the array twice, so the total work is linear.</p>
+<p><strong>O(n)</strong> — Creating the set takes O(n), and checking all numbers from 1 to n also takes O(n).</p>
 
 <h3>Space Complexity</h3>
 
-<p><strong>O(1)</strong> — We modify the input array in-place. The returned result list does not count as extra space according to the problem.</p>
+<p><strong>O(n)</strong> — The <code>seen</code> set stores up to n different numbers. The returned result list is not counted as extra space according to the problem.</p>
 
 <h3>Pattern</h3>
 
-<p><strong>Array Index Marking / In-Place Array</strong></p>
+<p><strong>Hash Set / Lookup</strong></p>
