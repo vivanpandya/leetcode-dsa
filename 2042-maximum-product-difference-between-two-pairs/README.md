@@ -47,20 +47,21 @@ The product difference is (9 * 8) - (2 * 4) = 64.
 
 <h3>Approach</h3>
 
-<p>To maximize the product difference, we need the <strong>two largest numbers</strong> for the first product and the <strong>two smallest numbers</strong> for the second product.</p>
+<p>We first <strong>sort the array</strong> in ascending order.</p>
 
-<p>Instead of sorting the array, we find these four values in a single traversal.</p>
-
-<p>We keep track of:</p>
+<p>After sorting:</p>
 
 <pre>
-smallest
-second_smallest
-largest
-second_largest
+nums[0]  → smallest
+nums[1]  → second smallest
+
+nums[-2] → second largest
+nums[-1] → largest
 </pre>
 
-<p>Then the answer is:</p>
+<p>Since all numbers are positive, the maximum product difference is obtained by multiplying the two largest numbers and subtracting the product of the two smallest numbers.</p>
+
+<p>Therefore:</p>
 
 <pre>
 (largest * second_largest) - (smallest * second_smallest)
@@ -69,16 +70,14 @@ second_largest
 <h3>Algorithm</h3>
 
 <pre>
-1. Initialize smallest and second_smallest to infinity.
-2. Initialize largest and second_largest to negative infinity.
-3. Traverse every number in nums.
-4. Update the two smallest values.
-5. Update the two largest values.
-6. Calculate:
+1. Sort nums in ascending order.
+2. Take nums[0] and nums[1] as the two smallest numbers.
+3. Take nums[-2] and nums[-1] as the two largest numbers.
+4. Calculate:
 
-       (largest * second_largest) - (smallest * second_smallest)
+       (nums[-1] * nums[-2]) - (nums[0] * nums[1])
 
-7. Return the result.
+5. Return the result.
 </pre>
 
 <h3>Code</h3>
@@ -86,32 +85,19 @@ second_largest
 <pre>
 class Solution:
     def maxProductDifference(self, nums):
-        smallest = float('inf')
-        second_smallest = float('inf')
+        nums.sort()
 
-        largest = float('-inf')
-        second_largest = float('-inf')
-
-        for num in nums:
-            if num &lt;= smallest:
-                second_smallest = smallest
-                smallest = num
-            elif num &lt; second_smallest:
-                second_smallest = num
-
-            if num &gt;= largest:
-                second_largest = largest
-                largest = num
-            elif num &gt; second_largest:
-                second_largest = num
-
-        return (largest * second_largest) - (smallest * second_smallest)
+        return (nums[-1] * nums[-2]) - (nums[0] * nums[1])
 </pre>
 
 <h3>Example</h3>
 
 <pre>
 nums = [5,6,2,7,4]
+
+After sorting:
+
+[2,4,5,6,7]
 
 Smallest two:
 2, 4
@@ -121,7 +107,7 @@ Largest two:
 
 Product difference:
 
-(6 * 7) - (2 * 4)
+(7 * 6) - (2 * 4)
 = 42 - 8
 = 34
 
@@ -132,20 +118,31 @@ Answer = 34
 
 <p>All numbers in the array are positive.</p>
 
-<p>Therefore, to make the first product as large as possible, we choose the <strong>two largest numbers</strong>.</p>
+<p>After sorting, the two largest numbers are at the end of the array and the two smallest numbers are at the beginning.</p>
 
-<p>To make the second product as small as possible, we choose the <strong>two smallest numbers</strong>.</p>
+<p>To maximize the difference, we want the largest possible product for the first pair and the smallest possible product for the second pair.</p>
 
-<p>By finding these four values in one traversal, we get the maximum possible product difference without sorting the array.</p>
+<p>Therefore, we calculate:</p>
+
+<pre>
+(largest * second_largest) - (smallest * second_smallest)
+</pre>
+
+<p>Python's negative indexing makes it easy to access the last two elements:</p>
+
+<pre>
+nums[-1] → largest
+nums[-2] → second largest
+</pre>
 
 <h3>Time Complexity</h3>
 
-<p><strong>O(n)</strong> — We traverse the array only once.</p>
+<p><strong>O(n log n)</strong> — Sorting the array takes <code>O(n log n)</code> time.</p>
 
 <h3>Space Complexity</h3>
 
-<p><strong>O(1)</strong> — We only use four variables to track the smallest and largest values.</p>
+<p><strong>O(1)</strong> auxiliary space — The array is sorted in-place and we only use a few variables.</p>
 
 <h3>Pattern</h3>
 
-<p><strong>One Pass / Find 2 Smallest and 2 Largest</strong></p>
+<p><strong>Sorting / Find Two Smallest and Two Largest</strong></p>
