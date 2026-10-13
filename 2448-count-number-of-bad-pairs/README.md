@@ -1,33 +1,146 @@
-<h2><a href="https://leetcode.com/problems/count-number-of-bad-pairs">Count Number of Bad Pairs</a></h2> <img src='https://img.shields.io/badge/Difficulty-Medium-orange' alt='Difficulty: Medium' /><hr><p>You are given a <strong>0-indexed</strong> integer array <code>nums</code>. A pair of indices <code>(i, j)</code> is a <strong>bad pair</strong> if <code>i &lt; j</code> and <code>j - i != nums[j] - nums[i]</code>.</p>
+# 2364. Count Number of Bad Pairs
 
-<p>Return<em> the total number of <strong>bad pairs</strong> in </em><code>nums</code>.</p>
+**LeetCode:** [2364. Count Number of Bad Pairs](https://leetcode.com/problems/count-number-of-bad-pairs/)  
+**Difficulty:** Medium  
+**Topics:** Array, Hash Table, Counting
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+---
 
-<pre>
-<strong>Input:</strong> nums = [4,1,3,3]
-<strong>Output:</strong> 5
-<strong>Explanation:</strong> The pair (0, 1) is a bad pair since 1 - 0 != 1 - 4.
-The pair (0, 2) is a bad pair since 2 - 0 != 3 - 4, 2 != -1.
-The pair (0, 3) is a bad pair since 3 - 0 != 3 - 4, 3 != -1.
-The pair (1, 2) is a bad pair since 2 - 1 != 3 - 1, 1 != 2.
-The pair (2, 3) is a bad pair since 3 - 2 != 3 - 3, 1 != 0.
-There are a total of 5 bad pairs, so we return 5.
-</pre>
+## 1. Question
 
-<p><strong class="example">Example 2:</strong></p>
+You are given a 0-indexed integer array `nums`. A pair of indices `(i, j)` is a **bad pair** if `i < j` and `j - i != nums[j] - nums[i]`.
 
-<pre>
-<strong>Input:</strong> nums = [1,2,3,4,5]
-<strong>Output:</strong> 0
-<strong>Explanation:</strong> There are no bad pairs.
-</pre>
+Return the total number of bad pairs in `nums`.
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+### Example 1
 
-<ul>
-	<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>
-	<li><code>1 &lt;= nums[i] &lt;= 10<sup>9</sup></code></li>
-</ul>
+**Input**
+```text
+nums = [4,1,3,3]
+```
+
+**Output**
+```text
+5
+```
+
+**Explanation:** All five possible pairs are bad, so the answer is `5`.
+
+### Example 2
+
+**Input**
+```text
+nums = [1,2,3,4,5]
+```
+
+**Output**
+```text
+0
+```
+
+**Explanation:** Every pair satisfies the good-pair condition, so there are no bad pairs.
+
+### Constraints
+
+- `1 <= nums.length <= 10^5`
+- `1 <= nums[i] <= 10^9`
+
+---
+
+## 2. Approach
+
+Checking every pair would take `O(n²)` time, which is too slow for an array of up to `100,000` elements.
+
+Instead, count **good pairs** and subtract them from the total number of pairs.
+
+A pair `(i, j)` is good when:
+
+`j - i == nums[j] - nums[i]`
+
+Rearranging the equation:
+
+`nums[i] - i == nums[j] - j`
+
+Therefore, a pair is good if both indices have the same key:
+
+`key = nums[i] - i`
+
+Use a hash map to count how many times each key has appeared. When processing a new element, every previous occurrence of the same key forms one good pair with it.
+
+The total number of index pairs is:
+
+`n * (n - 1) // 2`
+
+Finally:
+
+`bad_pairs = total_pairs - good_pairs`
+
+## 3. Algorithm
+
+1. Set `n = len(nums)`.
+2. Calculate `total_pairs = n * (n - 1) // 2`.
+3. Initialize an empty dictionary `count` and set `good_pairs = 0`.
+4. Traverse `nums` with each index `i` and value `num`.
+5. Calculate `key = num - i`.
+6. Add `count.get(key, 0)` to `good_pairs`.
+7. Increase `count[key]` by one.
+8. Return `total_pairs - good_pairs`.
+
+## 4. Code
+
+```python
+class Solution:
+    def countBadPairs(self, nums):
+        n = len(nums)
+        total_pairs = n * (n - 1) // 2
+
+        count = {}
+        good_pairs = 0
+
+        for i, num in enumerate(nums):
+            key = num - i
+            good_pairs += count.get(key, 0)
+            count[key] = count.get(key, 0) + 1
+
+        return total_pairs - good_pairs
+```
+
+## 5. Dry Run
+
+**Input:** `nums = [4,1,3,3]`
+
+Total possible pairs:
+
+`4 * (4 - 1) // 2 = 6`
+
+| Index `i` | `nums[i]` | Key `nums[i] - i` | Previous matching keys | Good pairs so far |
+|---:|---:|---:|---:|---:|
+| 0 | 4 | 4 | 0 | 0 |
+| 1 | 1 | 0 | 0 | 0 |
+| 2 | 3 | 1 | 0 | 0 |
+| 3 | 3 | 0 | 1 | 1 |
+
+There is `1` good pair: `(1, 3)`.
+
+`bad_pairs = 6 - 1 = 5`
+
+**Output:** `5`
+
+## 6. Why This Works
+
+The good-pair condition is `j - i == nums[j] - nums[i]`. Rearranging gives `nums[i] - i == nums[j] - j`. Thus, two indices form a good pair exactly when their keys `nums[index] - index` are equal.
+
+For every current index, the frequency of its key tells us how many earlier indices form a good pair with it. Each good pair is counted exactly once. Every index pair is either good or bad, so subtracting the number of good pairs from the total gives the correct number of bad pairs.
+
+## 7. Complexity Analysis
+
+Let `n` be the length of `nums`.
+
+- **Time Complexity:** `O(n)` average, because each element is processed once with average constant-time hash map operations.
+- **Auxiliary Space Complexity:** `O(n)`, because the dictionary can store up to `n` distinct keys.
+
+## 8. Pattern
+
+**Hash Map + Counting Pairs + Mathematical Rearrangement**
+
+When a pair condition contains both indices and values, try rearranging the equation to create a key for each element. Then count matching keys with a hash map instead of checking all pairs.
