@@ -1,53 +1,106 @@
-<h2><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii">Remove Duplicates from Sorted Array II</a></h2> <img src='https://img.shields.io/badge/Difficulty-Medium-orange' alt='Difficulty: Medium' /><hr><p>Given an integer array <code>nums</code> sorted in <strong>non-decreasing order</strong>, remove some duplicates <a href="https://en.wikipedia.org/wiki/In-place_algorithm" target="_blank"><strong>in-place</strong></a> such that each unique element appears <strong>at most twice</strong>. The <strong>relative order</strong> of the elements should be kept the <strong>same</strong>.</p>
+# LeetCode 80: Remove Duplicates from Sorted Array II
 
-<p>Since it is impossible to change the length of the array in some languages, you must instead have the result be placed in the <strong>first part</strong> of the array <code>nums</code>. More formally, if there are <code>k</code> elements after removing the duplicates, then the first <code>k</code> elements of <code>nums</code>&nbsp;should hold the final result. It does not matter what you leave beyond the first&nbsp;<code>k</code>&nbsp;elements.</p>
+[![Difficulty](https://img.shields.io/badge/Difficulty-Medium-orange)](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/)
+[![LeetCode](https://img.shields.io/badge/LeetCode-80-blue)](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/)
 
-<p>Return <code>k</code><em> after placing the final result in the first </em><code>k</code><em> slots of </em><code>nums</code>.</p>
+**Problem link:** https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/
 
-<p>Do <strong>not</strong> allocate extra space for another array. You must do this by <strong>modifying the input array <a href="https://en.wikipedia.org/wiki/In-place_algorithm" target="_blank">in-place</a></strong> with O(1) extra memory.</p>
+---
 
-<p><strong>Custom Judge:</strong></p>
+## 1. Question
 
-<p>The judge will test your solution with the following code:</p>
+Given an integer array `nums` sorted in non-decreasing order, remove duplicates **in-place** so that each unique element appears at most twice. Keep the relative order of the elements the same.
 
-<pre>
-int[] nums = [...]; // Input array
-int[] expectedNums = [...]; // The expected answer with correct length
+If `k` elements remain, place them in the first `k` positions of `nums` and return `k`. Do not allocate another array; use `O(1)` extra memory.
 
-int k = removeDuplicates(nums); // Calls your implementation
+### Constraints
 
-assert k == expectedNums.length;
-for (int i = 0; i &lt; k; i++) {
-    assert nums[i] == expectedNums[i];
-}
-</pre>
+- `1 <= nums.length <= 3 * 10^4`
+- `-10^4 <= nums[i] <= 10^4`
+- `nums` is sorted in non-decreasing order.
 
-<p>If all assertions pass, then your solution will be <strong>accepted</strong>.</p>
+## 2. Examples
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+### Example 1
 
-<pre>
-<strong>Input:</strong> nums = [1,1,1,2,2,3]
-<strong>Output:</strong> 5, nums = [1,1,2,2,3,_]
-<strong>Explanation:</strong> Your function should return k = 5, with the first five elements of nums being 1, 1, 2, 2 and 3 respectively.
-It does not matter what you leave beyond the returned k (hence they are underscores).
-</pre>
+```python
+nums = [1, 1, 1, 2, 2, 3]
+# Return: 5
+# First 5 elements: [1, 1, 2, 2, 3]
+```
 
-<p><strong class="example">Example 2:</strong></p>
+### Example 2
 
-<pre>
-<strong>Input:</strong> nums = [0,0,1,1,1,1,2,3,3]
-<strong>Output:</strong> 7, nums = [0,0,1,1,2,3,3,_,_]
-<strong>Explanation:</strong> Your function should return k = 7, with the first seven elements of nums being 0, 0, 1, 1, 2, 3 and 3 respectively.
-It does not matter what you leave beyond the returned k (hence they are underscores).
-</pre>
+```python
+nums = [0, 0, 1, 1, 1, 1, 2, 3, 3]
+# Return: 7
+# First 7 elements: [0, 0, 1, 1, 2, 3, 3]
+```
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+## 3. Approach
 
-<ul>
-	<li><code>1 &lt;= nums.length &lt;= 3 * 10<sup>4</sup></code></li>
-	<li><code>-10<sup>4</sup> &lt;= nums[i] &lt;= 10<sup>4</sup></code></li>
-	<li><code>nums</code> is sorted in <strong>non-decreasing</strong> order.</li>
-</ul>
+Use **Two Pointers** to modify the array in-place.
+
+- `i` scans the input array.
+- `k` points to the position where the next valid element should be written.
+- The first two elements can always be kept.
+- For every later element, keep it only if it differs from `nums[k - 2]`.
+- If it equals `nums[k - 2]`, two copies of that value are already in the result, so skip it.
+
+Because the array is sorted, equal values appear next to each other. Comparing with the element two positions behind the write pointer ensures that no value appears more than twice.
+
+## 4. Algorithm
+
+1. If `len(nums) <= 2`, return `len(nums)`.
+2. Initialize `k = 2`.
+3. Iterate `i` from index `2` to the end of `nums`.
+4. If `nums[i] != nums[k - 2]`:
+   - Write `nums[i]` at `nums[k]`.
+   - Increment `k`.
+5. Return `k`.
+
+## 5. Code
+
+```python
+class Solution:
+    def removeDuplicates(self, nums):
+        if len(nums) <= 2:
+            return len(nums)
+
+        k = 2
+
+        for i in range(2, len(nums)):
+            if nums[i] != nums[k - 2]:
+                nums[k] = nums[i]
+                k += 1
+
+        return k
+```
+
+## 6. Dry Run
+
+Input: `nums = [1, 1, 1, 2, 2, 3]`
+
+Initially, the first two elements `[1, 1]` are kept, so `k = 2`.
+
+| `i` | `nums[i]` | `nums[k - 2]` | Action | `k` after action |
+|---:|---:|---:|---|---:|
+| 2 | 1 | 1 | Skip: two `1`s are already kept | 2 |
+| 3 | 2 | 1 | Write `2` at index 2 | 3 |
+| 4 | 2 | 1 | Write `2` at index 3 | 4 |
+| 5 | 3 | 2 | Write `3` at index 4 | 5 |
+
+The first `k = 5` elements are `[1, 1, 2, 2, 3]`.
+
+**Output:** `5`
+
+## 7. Complexity
+
+- **Time Complexity:** `O(n)` — each element is examined once.
+- **Auxiliary Space Complexity:** `O(1)` — the input array is modified in-place, using only a fixed number of variables.
+
+## 8. Pattern
+
+**Two Pointers — In-Place Array Modification**
+
+Use this pattern when working with sorted arrays where you need to remove or limit duplicates without creating another array.
