@@ -1,42 +1,134 @@
-<h2><a href="https://leetcode.com/problems/sort-colors">Sort Colors</a></h2> <img src='https://img.shields.io/badge/Difficulty-Medium-orange' alt='Difficulty: Medium' /><hr><p>You are given an array <code>nums</code> with <code>n</code> objects colored red, white, or blue, sort them <strong><a href="https://en.wikipedia.org/wiki/In-place_algorithm" target="_blank">in-place</a> </strong>so that objects of the same color are adjacent, with the colors in the order red, white, and blue.</p>
+# 75. Sort Colors
 
-<p>We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively.</p>
+- **LeetCode:** [75. Sort Colors](https://leetcode.com/problems/sort-colors/)
+- **Difficulty:** Medium
+- **Topics:** Array, Two Pointers, Sorting
 
-<p>You must solve this problem without using the library&#39;s sort function.</p>
+## 1. Question
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+Given an array `nums` containing only `0`, `1`, and `2`, sort it in-place so that the values appear in the order `0`, `1`, and `2`.
 
-<div class="example-block">
-<p><strong>Input:</strong> <span class="example-io">nums = [2,0,2,1,1,0]</span></p>
+- `0` represents red.
+- `1` represents white.
+- `2` represents blue.
 
-<p><strong>Output:</strong> <span class="example-io">[0,0,1,1,2,2]</span></p>
+Do not use the built-in sorting function. The goal is a one-pass solution with `O(1)` auxiliary space.
 
-<p><strong>Explanation:</strong></p>
+## 2. Example
 
-<p>The array has two 0s, two 1s, and two 2s. Sorting them in-place places all 0s first, then all 1s, then all 2s.</p>
-</div>
+### Example 1
 
-<p><strong class="example">Example 2:</strong></p>
+**Input**
+```python
+nums = [2, 0, 2, 1, 1, 0]
+```
 
-<div class="example-block">
-<p><strong>Input:</strong> <span class="example-io">nums = [2,0,1]</span></p>
+**Output**
+```python
+[0, 0, 1, 1, 2, 2]
+```
 
-<p><strong>Output:</strong> <span class="example-io">[0,1,2]</span></p>
+**Explanation:** The array contains two `0`s, two `1`s, and two `2`s. Place all `0`s first, then all `1`s, and finally all `2`s.
 
-<p><strong>Explanation:</strong></p>
+### Example 2
 
-<p>The array has one each of 0, 1, and 2, arranged in-place in the order 0, 1, 2.</p>
-</div>
+**Input**
+```python
+nums = [2, 0, 1]
+```
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+**Output**
+```python
+[0, 1, 2]
+```
 
-<ul>
-	<li><code>n == nums.length</code></li>
-	<li><code>1 &lt;= n &lt;= 300</code></li>
-	<li><code>nums[i]</code> is either 0, 1, or 2.</li>
-</ul>
+### Constraints
+- `n == len(nums)`
+- `1 <= n <= 300`
+- `nums[i]` is either `0`, `1`, or `2`.
 
-<p>&nbsp;</p>
-<p><strong>Follow up:</strong>&nbsp;Could you come up with a one-pass algorithm using only&nbsp;constant extra space?</p>
+## 3. Approach
+
+Use the **Dutch National Flag Algorithm** with three pointers:
+
+- `low`: position where the next `0` should go.
+- `mid`: current element being examined.
+- `high`: position where the next `2` should go.
+
+There are three cases:
+
+1. If `nums[mid] == 0`, swap it with `nums[low]`, then increment `low` and `mid`.
+2. If `nums[mid] == 1`, it is already in the correct middle region, so increment `mid`.
+3. If `nums[mid] == 2`, swap it with `nums[high]` and decrement `high`. Do **not** increment `mid`, because the swapped-in element has not been examined yet.
+
+## 4. Algorithm
+
+1. Set `low = 0` and `mid = 0`.
+2. Set `high = len(nums) - 1`.
+3. While `mid <= high`:
+   - If `nums[mid] == 0`, swap `nums[low]` and `nums[mid]`, then increment `low` and `mid`.
+   - If `nums[mid] == 1`, increment `mid`.
+   - Otherwise, swap `nums[mid]` and `nums[high]`, then decrement `high`.
+4. Stop when `mid > high`. The array is sorted in-place.
+
+## 5. Code
+
+```python
+class Solution:
+    def sortColors(self, nums):
+        low = 0
+        mid = 0
+        high = len(nums) - 1
+
+        while mid <= high:
+            if nums[mid] == 0:
+                nums[low], nums[mid] = nums[mid], nums[low]
+                low += 1
+                mid += 1
+
+            elif nums[mid] == 1:
+                mid += 1
+
+            else:
+                nums[mid], nums[high] = nums[high], nums[mid]
+                high -= 1
+```
+
+**Note:** LeetCode expects `nums` to be modified in-place. You do not need to return it.
+
+## 6. Dry Run
+
+Input: `nums = [2, 0, 2, 1, 1, 0]`
+
+| Step | `low` | `mid` | `high` | Action | Array |
+|---:|---:|---:|---:|---|---|
+| 1 | 0 | 0 | 5 | Current value is `2`; swap positions `0` and `5`, decrement `high` | `[0, 0, 2, 1, 1, 2]` |
+| 2 | 0 | 0 | 4 | Current value is `0`; swap positions `0` and `0`, increment `low` and `mid` | `[0, 0, 2, 1, 1, 2]` |
+| 3 | 1 | 1 | 4 | Current value is `0`; swap positions `1` and `1`, increment `low` and `mid` | `[0, 0, 2, 1, 1, 2]` |
+| 4 | 2 | 2 | 4 | Current value is `2`; swap positions `2` and `4`, decrement `high` | `[0, 0, 1, 1, 2, 2]` |
+| 5 | 2 | 2 | 3 | Current value is `1`; increment `mid` | `[0, 0, 1, 1, 2, 2]` |
+| 6 | 2 | 3 | 3 | Current value is `1`; increment `mid` | `[0, 0, 1, 1, 2, 2]` |
+
+Now `mid > high`, so the loop stops.
+
+**Final array:** `[0, 0, 1, 1, 2, 2]`
+
+## 7. Complexity
+
+- **Time Complexity: `O(n)`** — each element is examined a constant number of times.
+- **Auxiliary Space Complexity: `O(1)`** — only three pointers are used; the original list is modified in-place.
+
+## 8. Pattern
+
+**Three Pointers — Dutch National Flag Algorithm**
+
+Use this pattern when:
+- An array contains three categories of values.
+- Values must be grouped in a specific order.
+- The array must be modified in-place.
+- The solution needs one pass and constant extra space.
+
+**Related problems:**
+- [Move Zeroes — #283](https://leetcode.com/problems/move-zeroes/)
+- [Remove Duplicates from Sorted Array — #26](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
+- [Sort Array By Parity — #905](https://leetcode.com/problems/sort-array-by-parity/)
