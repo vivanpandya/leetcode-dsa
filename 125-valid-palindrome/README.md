@@ -1,37 +1,156 @@
-<h2><a href="https://leetcode.com/problems/valid-palindrome">Valid Palindrome</a></h2> <img src='https://img.shields.io/badge/Difficulty-Easy-brightgreen' alt='Difficulty: Easy' /><hr><p>A phrase is a <strong>palindrome</strong> if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.</p>
+# 125. Valid Palindrome
 
-<p>Given a string <code>s</code>, return <code>true</code><em> if it is a <strong>palindrome</strong>, or </em><code>false</code><em> otherwise</em>.</p>
+- **LeetCode:** [125. Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
+- **Difficulty:** Easy
+- **Topics:** Two Pointers, String
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+## 1. Question
 
-<pre>
-<strong>Input:</strong> s = &quot;A man, a plan, a canal: Panama&quot;
-<strong>Output:</strong> true
-<strong>Explanation:</strong> &quot;amanaplanacanalpanama&quot; is a palindrome.
-</pre>
+A phrase is a palindrome if, after converting uppercase letters to lowercase and removing all non-alphanumeric characters, it reads the same forward and backward.
 
-<p><strong class="example">Example 2:</strong></p>
+Given a string `s`, return `True` if it is a palindrome; otherwise, return `False`.
 
-<pre>
-<strong>Input:</strong> s = &quot;race a car&quot;
-<strong>Output:</strong> false
-<strong>Explanation:</strong> &quot;raceacar&quot; is not a palindrome.
-</pre>
+**Alphanumeric characters** include letters and numbers.
 
-<p><strong class="example">Example 3:</strong></p>
+### Constraints
+- `1 <= len(s) <= 2 * 10^5`
+- `s` consists only of printable ASCII characters.
 
-<pre>
-<strong>Input:</strong> s = &quot; &quot;
-<strong>Output:</strong> true
-<strong>Explanation:</strong> s is an empty string &quot;&quot; after removing non-alphanumeric characters.
-Since an empty string reads the same forward and backward, it is a palindrome.
-</pre>
+## 2. Example
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+### Example 1
 
-<ul>
-	<li><code>1 &lt;= s.length &lt;= 2 * 10<sup>5</sup></code></li>
-	<li><code>s</code> consists only of printable ASCII characters.</li>
-</ul>
+**Input**
+```python
+s = "A man, a plan, a canal: Panama"
+```
+
+**Output**
+```python
+True
+```
+
+**Explanation:** After removing spaces and punctuation and converting to lowercase, the string becomes `amanaplanacanalpanama`, which reads the same forward and backward.
+
+### Example 2
+
+**Input**
+```python
+s = "race a car"
+```
+
+**Output**
+```python
+False
+```
+
+**Explanation:** After cleaning, the string becomes `raceacar`, which is not a palindrome.
+
+### Example 3
+
+**Input**
+```python
+s = " "
+```
+
+**Output**
+```python
+True
+```
+
+**Explanation:** Removing non-alphanumeric characters leaves an empty string. An empty string is a palindrome.
+
+## 3. Approach
+
+Use **two pointers** so we do not need to build a separate cleaned string.
+
+- `left` starts at the beginning.
+- `right` starts at the end.
+- Move `left` forward while it points to a non-alphanumeric character.
+- Move `right` backward while it points to a non-alphanumeric character.
+- Compare the two characters in lowercase.
+- If they differ, return `False`. Otherwise, move both pointers inward.
+- If the pointers meet or cross, all pairs matched, so return `True`.
+
+Python's `isalnum()` checks whether a character is a letter or a number.
+
+## 4. Algorithm
+
+1. Initialize `left = 0`.
+2. Initialize `right = len(s) - 1`.
+3. While `left < right`:
+   - If `s[left]` is not alphanumeric, increment `left` and continue.
+   - If `s[right]` is not alphanumeric, decrement `right` and continue.
+   - If `s[left].lower() != s[right].lower()`, return `False`.
+   - Increment `left` and decrement `right`.
+4. Return `True`.
+
+## 5. Code
+
+```python
+class Solution:
+    def isPalindrome(self, s):
+        left = 0
+        right = len(s) - 1
+
+        while left < right:
+            if not s[left].isalnum():
+                left += 1
+                continue
+
+            if not s[right].isalnum():
+                right -= 1
+                continue
+
+            if s[left].lower() != s[right].lower():
+                return False
+
+            left += 1
+            right -= 1
+
+        return True
+```
+
+## 6. Dry Run
+
+Input: `s = "A man, a plan, a canal: Panama"`
+
+The two pointers skip spaces and punctuation, then compare letters without considering case.
+
+| Comparison | Left character | Right character | Result |
+|---:|---|---|---|
+| 1 | `A` | `a` | Match |
+| 2 | `m` | `m` | Match |
+| 3 | `a` | `a` | Match |
+| 4 | `n` | `n` | Match |
+| 5 | `a` | `a` | Match |
+| 6 | `p` | `P` | Match |
+| 7 | `l` | `l` | Match |
+| 8 | `a` | `a` | Match |
+| 9 | `n` | `n` | Match |
+
+The pointers continue inward, skipping spaces and punctuation. No mismatch is found.
+
+**Final output:** `True`
+
+## 7. Complexity
+
+Let `n` be the length of `s`.
+
+- **Time Complexity: `O(n)`** — each pointer moves across the string at most once.
+- **Auxiliary Space Complexity: `O(1)`** — only two pointers are used; no cleaned copy of the string is created.
+
+## 8. Pattern
+
+**Pattern: Two Pointers from Both Ends**
+
+Use this pattern when:
+- Comparing a sequence from the beginning and end.
+- Checking whether a string reads the same in reverse.
+- Ignoring characters that do not meet a condition.
+- Solving the problem in-place or with constant extra space.
+
+**Related problems:**
+- [Valid Palindrome II — #680](https://leetcode.com/problems/valid-palindrome-ii/)
+- [Reverse String — #344](https://leetcode.com/problems/reverse-string/)
+- [Two Sum II — #167](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
