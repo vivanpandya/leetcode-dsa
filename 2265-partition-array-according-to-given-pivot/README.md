@@ -1,45 +1,145 @@
-<h2><a href="https://leetcode.com/problems/partition-array-according-to-given-pivot">Partition Array According to Given Pivot</a></h2> <img src='https://img.shields.io/badge/Difficulty-Medium-orange' alt='Difficulty: Medium' /><hr><p>You are given a <strong>0-indexed</strong> integer array <code>nums</code> and an integer <code>pivot</code>. Rearrange <code>nums</code> such that the following conditions are satisfied:</p>
+# 2161. Partition Array According to Given Pivot
 
-<ul>
-	<li>Every element less than <code>pivot</code> appears <strong>before</strong> every element greater than <code>pivot</code>.</li>
-	<li>Every element equal to <code>pivot</code> appears <strong>in between</strong> the elements less than and greater than <code>pivot</code>.</li>
-	<li>The <strong>relative order</strong> of the elements less than <code>pivot</code> and the elements greater than <code>pivot</code> is maintained.
-	<ul>
-		<li>More formally, consider every <code>p<sub>i</sub></code>, <code>p<sub>j</sub></code> where <code>p<sub>i</sub></code> is the new position of the <code>i<sup>th</sup></code> element and <code>p<sub>j</sub></code> is the new position of the <code>j<sup>th</sup></code> element. If <code>i &lt; j</code> and <strong>both</strong> elements are smaller (<em>or larger</em>) than <code>pivot</code>, then <code>p<sub>i</sub> &lt; p<sub>j</sub></code>.</li>
-	</ul>
-	</li>
-</ul>
+[LeetCode Problem](https://leetcode.com/problems/partition-array-according-to-given-pivot/) | **Difficulty:** Medium
 
-<p>Return <code>nums</code><em> after the rearrangement.</em></p>
+## Problem Statement
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+You are given a **0-indexed** integer array `nums` and an integer `pivot`. Rearrange `nums` such that:
 
-<pre>
-<strong>Input:</strong> nums = [9,12,5,10,14,3,10], pivot = 10
-<strong>Output:</strong> [9,5,3,10,10,12,14]
-<strong>Explanation:</strong> 
-The elements 9, 5, and 3 are less than the pivot so they are on the left side of the array.
-The elements 12 and 14 are greater than the pivot so they are on the right side of the array.
-The relative ordering of the elements less than and greater than pivot is also maintained. [9, 5, 3] and [12, 14] are the respective orderings.
-</pre>
+- Every element less than `pivot` appears before every element greater than `pivot`.
+- Every element equal to `pivot` appears between the elements less than and greater than `pivot`.
+- The relative order of elements smaller than `pivot` is preserved, and the relative order of elements greater than `pivot` is preserved.
 
-<p><strong class="example">Example 2:</strong></p>
+Return `nums` after rearranging it.
 
-<pre>
-<strong>Input:</strong> nums = [-3,4,3,2], pivot = 2
-<strong>Output:</strong> [-3,2,4,3]
-<strong>Explanation:</strong> 
-The element -3 is less than the pivot so it is on the left side of the array.
-The elements 4 and 3 are greater than the pivot so they are on the right side of the array.
-The relative ordering of the elements less than and greater than pivot is also maintained. [-3] and [4, 3] are the respective orderings.
-</pre>
+## Examples
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+### Example 1
 
-<ul>
-	<li><code>1 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>
-	<li><code>-10<sup>6</sup> &lt;= nums[i] &lt;= 10<sup>6</sup></code></li>
-	<li><code>pivot</code> equals to an element of <code>nums</code>.</li>
-</ul>
+**Input:**
+```python
+nums = [9, 12, 5, 10, 14, 3, 10]
+pivot = 10
+```
+
+**Output:**
+```python
+[9, 5, 3, 10, 10, 12, 14]
+```
+
+**Explanation:** The elements smaller than `10` are `[9, 5, 3]`, the elements equal to `10` are `[10, 10]`, and the elements greater than `10` are `[12, 14]`. Their relative order is preserved within the smaller and greater groups.
+
+### Example 2
+
+**Input:**
+```python
+nums = [-3, 4, 3, 2]
+pivot = 2
+```
+
+**Output:**
+```python
+[-3, 2, 4, 3]
+```
+
+**Explanation:** `[-3]` comes first, `[2]` comes next, and `[4, 3]` comes last. The order of `4` and `3` is preserved.
+
+## Constraints
+
+- `1 <= nums.length <= 10^5`
+- `-10^6 <= nums[i] <= 10^6`
+- `pivot` is an element of `nums`.
+
+---
+
+## 1. Question
+
+Rearrange the array so all numbers smaller than `pivot` come first, all numbers equal to `pivot` come next, and all numbers greater than `pivot` come last. Preserve the original relative order within the smaller and greater groups.
+
+## 2. Example
+
+**Input:**
+```python
+nums = [9, 12, 5, 10, 14, 3, 10]
+pivot = 10
+```
+
+**Output:**
+```python
+[9, 5, 3, 10, 10, 12, 14]
+```
+
+## 3. Approach
+
+Use three lists:
+
+- `less` stores numbers smaller than `pivot`.
+- `equal` stores numbers equal to `pivot`.
+- `greater` stores numbers greater than `pivot`.
+
+Traverse `nums` once and append each number to its matching list. Since elements are appended in their original order, the relative order is preserved. Finally, combine the three lists.
+
+## 4. Algorithm
+
+1. Create empty lists named `less`, `equal`, and `greater`.
+2. Visit each number in `nums`.
+3. If `num < pivot`, append it to `less`.
+4. Otherwise, if `num == pivot`, append it to `equal`.
+5. Otherwise, append it to `greater`.
+6. Return `less + equal + greater`.
+
+## 5. Code
+
+```python
+class Solution:
+    def pivotArray(self, nums, pivot):
+        less = []
+        equal = []
+        greater = []
+
+        for num in nums:
+            if num < pivot:
+                less.append(num)
+            elif num == pivot:
+                equal.append(num)
+            else:
+                greater.append(num)
+
+        return less + equal + greater
+```
+
+## 6. Dry Run
+
+Input: `nums = [9, 12, 5, 10, 14, 3, 10]`, `pivot = 10`
+
+| Number | Condition | List after processing |
+|---:|---|---|
+| `9` | Less than `10` | `less = [9]` |
+| `12` | Greater than `10` | `greater = [12]` |
+| `5` | Less than `10` | `less = [9, 5]` |
+| `10` | Equal to `10` | `equal = [10]` |
+| `14` | Greater than `10` | `greater = [12, 14]` |
+| `3` | Less than `10` | `less = [9, 5, 3]` |
+| `10` | Equal to `10` | `equal = [10, 10]` |
+
+Combine the lists:
+
+```python
+less + equal + greater
+# [9, 5, 3, 10, 10, 12, 14]
+```
+
+## 7. Complexity
+
+- **Time Complexity:** `O(n)` — each element is processed once, and the list concatenation takes linear time.
+- **Space Complexity:** `O(n)` — the lists store the elements and the returned array contains all `n` elements.
+
+## 8. Pattern
+
+**Array Traversal + Stable Partitioning**
+
+Use this pattern when you need to separate array elements by a condition while preserving their relative order. The three-list approach is simple and clear, but it uses `O(n)` extra space.
+
+Related problems:
+- [Sort Colors — LeetCode 75](https://leetcode.com/problems/sort-colors/)
+- [Move Zeroes — LeetCode 283](https://leetcode.com/problems/move-zeroes/)
