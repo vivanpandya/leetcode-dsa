@@ -1,46 +1,126 @@
-<h2><a href="https://leetcode.com/problems/fruit-into-baskets">Fruit Into Baskets</a></h2> <img src='https://img.shields.io/badge/Difficulty-Medium-orange' alt='Difficulty: Medium' /><hr><p>You are visiting a farm that has a single row of fruit trees arranged from left to right. The trees are represented by an integer array <code>fruits</code> where <code>fruits[i]</code> is the <strong>type</strong> of fruit the <code>i<sup>th</sup></code> tree produces.</p>
+# 904. Fruit Into Baskets
 
-<p>You want to collect as much fruit as possible. However, the owner has some strict rules that you must follow:</p>
+**LeetCode:** [Fruit Into Baskets](https://leetcode.com/problems/fruit-into-baskets/)  
+**Difficulty:** Medium  
+**Pattern:** Variable-Size Sliding Window + Hash Map
 
-<ul>
-	<li>You only have <strong>two</strong> baskets, and each basket can only hold a <strong>single type</strong> of fruit. There is no limit on the amount of fruit each basket can hold.</li>
-	<li>Starting from any tree of your choice, you must pick <strong>exactly one fruit</strong> from <strong>every</strong> tree (including the start tree) while moving to the right. The picked fruits must fit in one of your baskets.</li>
-	<li>Once you reach a tree with fruit that cannot fit in your baskets, you must stop.</li>
-</ul>
+---
 
-<p>Given the integer array <code>fruits</code>, return <em>the <strong>maximum</strong> number of fruits you can pick</em>.</p>
+## 1. Question
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+You are given an integer array `fruits`, where `fruits[i]` represents the type of fruit produced by the `i`th tree.
 
-<pre>
-<strong>Input:</strong> fruits = [<u>1,2,1</u>]
-<strong>Output:</strong> 3
-<strong>Explanation:</strong> We can pick from all 3 trees.
-</pre>
+You have two baskets, and each basket can hold only one type of fruit. Starting from any tree, move to the right and collect exactly one fruit from every tree until you reach a tree whose fruit cannot fit in your baskets.
 
-<p><strong class="example">Example 2:</strong></p>
+Return the maximum number of fruits you can collect.
 
-<pre>
-<strong>Input:</strong> fruits = [0,<u>1,2,2</u>]
-<strong>Output:</strong> 3
-<strong>Explanation:</strong> We can pick from trees [1,2,2].
-If we had started at the first tree, we would only pick from trees [0,1].
-</pre>
+## 2. Examples
 
-<p><strong class="example">Example 3:</strong></p>
+### Example 1
 
-<pre>
-<strong>Input:</strong> fruits = [1,<u>2,3,2,2</u>]
-<strong>Output:</strong> 4
-<strong>Explanation:</strong> We can pick from trees [2,3,2,2].
-If we had started at the first tree, we would only pick from trees [1,2].
-</pre>
+**Input:** `fruits = [1,2,1]`  
+**Output:** `3`
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+All three trees contain at most two fruit types, so we can collect all three.
 
-<ul>
-	<li><code>1 &lt;= fruits.length &lt;= 10<sup>5</sup></code></li>
-	<li><code>0 &lt;= fruits[i] &lt; fruits.length</code></li>
-</ul>
+### Example 2
+
+**Input:** `fruits = [0,1,2,2]`  
+**Output:** `3`
+
+The longest valid section is `[1,2,2]`, which contains only two fruit types.
+
+### Example 3
+
+**Input:** `fruits = [1,2,3,2,2]`  
+**Output:** `4`
+
+The longest valid section is `[2,3,2,2]`, which contains only two fruit types.
+
+## 3. Approach
+
+Use a **variable-size sliding window** and a dictionary to count fruit types.
+
+- `left` is the start of the current window.
+- `right` moves through the array and adds each fruit to the window.
+- `count` stores how many times each fruit type appears in the current window.
+- If the window contains more than two different fruit types, shrink it from the left until only two types remain.
+- Update the maximum window length after each step.
+
+## 4. Algorithm
+
+1. Initialize `left = 0`, an empty dictionary `count`, and `max_fruits = 0`.
+2. For each `right` index:
+   - Add `fruits[right]` to the dictionary count.
+   - While the dictionary contains more than two fruit types:
+     - Decrease the count of `fruits[left]`.
+     - If its count becomes zero, remove that type from the dictionary.
+     - Move `left` one step to the right.
+   - Update `max_fruits` with `right - left + 1`.
+3. Return `max_fruits`.
+
+## 5. Code
+
+```python
+class Solution:
+    def totalFruit(self, fruits):
+        count = {}
+        left = 0
+        max_fruits = 0
+
+        for right in range(len(fruits)):
+            fruit = fruits[right]
+            count[fruit] = count.get(fruit, 0) + 1
+
+            while len(count) > 2:
+                left_fruit = fruits[left]
+                count[left_fruit] -= 1
+
+                if count[left_fruit] == 0:
+                    del count[left_fruit]
+
+                left += 1
+
+            max_fruits = max(max_fruits, right - left + 1)
+
+        return max_fruits
+```
+
+## 6. Dry Run
+
+For `fruits = [1,2,3,2,2]`:
+
+| Right | Fruit added | Window after adjustment | Fruit types | Window length | Maximum |
+|---:|---:|---|---:|---:|---:|
+| 0 | 1 | `[1]` | 1 | 1 | 1 |
+| 1 | 2 | `[1,2]` | 2 | 2 | 2 |
+| 2 | 3 | `[2,3]` | 2 | 2 | 2 |
+| 3 | 2 | `[2,3,2]` | 2 | 3 | 3 |
+| 4 | 2 | `[2,3,2,2]` | 2 | 4 | 4 |
+
+When fruit type `3` is added at index `2`, the window temporarily contains three types: `1`, `2`, and `3`. Move `left` forward and remove type `1` from the window. The valid window becomes `[2,3]`.
+
+**Final output:** `4`
+
+## 7. Complexity
+
+Let `n = len(fruits)`.
+
+- **Time Complexity:** `O(n)` — each index enters and leaves the window at most once.
+- **Space Complexity:** `O(1)` — the dictionary holds at most three fruit types temporarily, and at most two after shrinking.
+
+## 8. Pattern
+
+**Sliding Window — Longest Subarray With At Most Two Distinct Values**
+
+This is the same general pattern as problems that ask for the longest substring or subarray with at most `k` distinct values.
+
+Remember:
+- Expand the window by moving `right`.
+- If there are too many distinct types, move `left` until the window is valid.
+- Track the largest valid window using `right - left + 1`.
+
+## Constraints
+
+- `1 <= fruits.length <= 10^5`
+- `0 <= fruits[i] < fruits.length`
