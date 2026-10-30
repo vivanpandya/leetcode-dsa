@@ -1,39 +1,145 @@
-<h2><a href="https://leetcode.com/problems/number-of-sub-arrays-with-odd-sum">Number of Sub-arrays With Odd Sum</a></h2> <img src='https://img.shields.io/badge/Difficulty-Medium-orange' alt='Difficulty: Medium' /><hr><p>Given an array of integers <code>arr</code>, return <em>the number of subarrays with an <strong>odd</strong> sum</em>.</p>
+# 1524. Number of Sub-arrays With Odd Sum
 
-<p>Since the answer can be very large, return it modulo <code>10<sup>9</sup> + 7</code>.</p>
+[LeetCode Problem](https://leetcode.com/problems/number-of-sub-arrays-with-odd-sum/)  
+**Difficulty:** Medium  
+**Pattern:** Prefix Sum + Parity Counting
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+---
 
-<pre>
-<strong>Input:</strong> arr = [1,3,5]
-<strong>Output:</strong> 4
-<strong>Explanation:</strong> All subarrays are [[1],[1,3],[1,3,5],[3],[3,5],[5]]
-All sub-arrays sum are [1,4,9,3,8,5].
-Odd sums are [1,9,3,5] so the answer is 4.
-</pre>
+## 1. Question
 
-<p><strong class="example">Example 2:</strong></p>
+Given an array of integers `arr`, return the number of subarrays with an **odd** sum.
 
-<pre>
-<strong>Input:</strong> arr = [2,4,6]
-<strong>Output:</strong> 0
-<strong>Explanation:</strong> All subarrays are [[2],[2,4],[2,4,6],[4],[4,6],[6]]
-All sub-arrays sum are [2,6,12,4,10,6].
-All sub-arrays have even sum and the answer is 0.
-</pre>
+Since the answer can be very large, return it modulo `10^9 + 7`.
 
-<p><strong class="example">Example 3:</strong></p>
+A subarray is a contiguous part of an array.
 
-<pre>
-<strong>Input:</strong> arr = [1,2,3,4,5,6,7]
-<strong>Output:</strong> 16
-</pre>
+## 2. Examples
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+### Example 1
 
-<ul>
-	<li><code>1 &lt;= arr.length &lt;= 10<sup>5</sup></code></li>
-	<li><code>1 &lt;= arr[i] &lt;= 100</code></li>
-</ul>
+**Input:** `arr = [1, 3, 5]`
+
+**Output:** `4`
+
+**Explanation:** All subarrays are `[1]`, `[1,3]`, `[1,3,5]`, `[3]`, `[3,5]`, and `[5]`. Their sums are `1, 4, 9, 3, 8, 5`. The odd sums are `1, 9, 3, 5`, so the answer is `4`.
+
+### Example 2
+
+**Input:** `arr = [2, 4, 6]`
+
+**Output:** `0`
+
+**Explanation:** Every subarray has an even sum.
+
+### Example 3
+
+**Input:** `arr = [1, 2, 3, 4, 5, 6, 7]`
+
+**Output:** `16`
+
+## 3. Constraints
+
+- `1 <= arr.length <= 10^5`
+- `1 <= arr[i] <= 100`
+
+## 4. Approach
+
+Use **Prefix Sum + Parity Counting**.
+
+We only need to know whether a prefix sum is even or odd.
+
+- Even + Even = Even
+- Odd + Odd = Even
+- Even + Odd = Odd
+
+For the current prefix sum:
+- If it is **odd**, subtracting a previous **even** prefix sum gives an odd subarray sum.
+- If it is **even**, subtracting a previous **odd** prefix sum gives an odd subarray sum.
+
+We maintain:
+- `even = 1`: the empty prefix has sum `0`, which is even.
+- `odd = 0`: no odd prefix has been seen yet.
+- `prefix_sum = 0`: running prefix sum.
+- `count = 0`: number of odd-sum subarrays.
+
+## 5. Algorithm
+
+1. Initialize `even = 1`, `odd = 0`, `prefix_sum = 0`, and `count = 0`.
+2. Traverse each number in `arr`.
+3. Add the number to `prefix_sum`.
+4. If `prefix_sum` is odd:
+   - Add `even` to `count`.
+   - Increase `odd` by `1`.
+5. Otherwise:
+   - Add `odd` to `count`.
+   - Increase `even` by `1`.
+6. Return `count % (10**9 + 7)`.
+
+## 6. Code
+
+```python
+class Solution:
+    def numOfSubarrays(self, arr):
+        even = 1
+        odd = 0
+        prefix_sum = 0
+        count = 0
+
+        for num in arr:
+            prefix_sum += num
+
+            if prefix_sum % 2 == 1:
+                count += even
+                odd += 1
+            else:
+                count += odd
+                even += 1
+
+        return count % (10**9 + 7)
+```
+
+## 7. Dry Run
+
+Input: `arr = [1, 3, 5]`
+
+Initial values:
+- `even = 1`
+- `odd = 0`
+- `prefix_sum = 0`
+- `count = 0`
+
+| Number | Prefix Sum | Parity | Odd subarrays added | Total count |
+|---:|---:|---|---:|---:|
+| 1 | 1 | Odd | `even = 1` | 1 |
+| 3 | 4 | Even | `odd = 1` | 2 |
+| 5 | 9 | Odd | `even = 2` | 4 |
+
+Final answer: `4`.
+
+## 8. Why This Works
+
+A subarray sum from index `i` to `j` is:
+
+`prefix_sum[j] - prefix_sum[i - 1]`
+
+This difference is odd only when the two prefix sums have different parity:
+- Odd prefix minus even prefix = odd.
+- Even prefix minus odd prefix = odd.
+
+Therefore, at each position, adding the number of previously seen prefix sums with the opposite parity counts every odd-sum subarray ending at that position exactly once.
+
+## 9. Complexity
+
+- **Time Complexity:** `O(n)` — the array is traversed once.
+- **Space Complexity:** `O(1)` — only a fixed number of variables are used.
+
+## 10. Pattern
+
+**Prefix Sum + Parity Counting**
+
+Remember:
+- Start with `even = 1` because the empty prefix sum is zero (even).
+- An odd current prefix pairs with all previous even prefixes.
+- An even current prefix pairs with all previous odd prefixes.
+- Apply modulo `10^9 + 7` when returning the answer.
