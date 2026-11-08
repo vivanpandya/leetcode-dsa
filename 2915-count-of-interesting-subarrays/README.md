@@ -1,55 +1,204 @@
-<h2><a href="https://leetcode.com/problems/count-of-interesting-subarrays">Count of Interesting Subarrays</a></h2> <img src='https://img.shields.io/badge/Difficulty-Medium-orange' alt='Difficulty: Medium' /><hr><p>You are given a <strong>0-indexed</strong> integer array <code>nums</code>, an integer <code>modulo</code>, and an integer <code>k</code>.</p>
+# 2845. Count of Interesting Subarrays
 
-<p>Your task is to find the count of subarrays that are <strong>interesting</strong>.</p>
+[LeetCode Problem](https://leetcode.com/problems/count-of-interesting-subarrays/)  
+**Difficulty:** Medium  
+**Pattern:** Prefix Sum + HashMap + Modulo
 
-<p>A <strong>subarray</strong> <code>nums[l..r]</code> is <strong>interesting</strong> if the following condition holds:</p>
+---
 
-<ul>
-	<li>Let <code>cnt</code> be the number of indices <code>i</code> in the range <code>[l, r]</code> such that <code>nums[i] % modulo == k</code>. Then, <code>cnt % modulo == k</code>.</li>
-</ul>
+## 1. Question
 
-<p>Return <em>an integer denoting the count of interesting subarrays. </em></p>
+You are given a 0-indexed integer array `nums`, an integer `modulo`, and an integer `k`.
 
-<p><span><strong>Note:</strong> A subarray is <em>a contiguous non-empty sequence of elements within an array</em>.</span></p>
+A non-empty contiguous subarray `nums[l..r]` is **interesting** if:
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+1. Count the indices `i` in the subarray for which `nums[i] % modulo == k`.
+2. Let this count be `cnt`. The subarray is interesting when `cnt % modulo == k`.
 
-<pre>
-<strong>Input:</strong> nums = [3,2,4], modulo = 2, k = 1
-<strong>Output:</strong> 3
-<strong>Explanation:</strong> In this example the interesting subarrays are: 
-The subarray nums[0..0] which is [3]. 
-- There is only one index, i = 0, in the range [0, 0] that satisfies nums[i] % modulo == k. 
-- Hence, cnt = 1 and cnt % modulo == k.  
-The subarray nums[0..1] which is [3,2].
-- There is only one index, i = 0, in the range [0, 1] that satisfies nums[i] % modulo == k.  
-- Hence, cnt = 1 and cnt % modulo == k.
-The subarray nums[0..2] which is [3,2,4]. 
-- There is only one index, i = 0, in the range [0, 2] that satisfies nums[i] % modulo == k. 
-- Hence, cnt = 1 and cnt % modulo == k. 
-It can be shown that there are no other interesting subarrays. So, the answer is 3.</pre>
+Return the total number of interesting subarrays.
 
-<p><strong class="example">Example 2:</strong></p>
+## 2. Examples
 
-<pre>
-<strong>Input:</strong> nums = [3,1,9,6], modulo = 3, k = 0
-<strong>Output:</strong> 2
-<strong>Explanation: </strong>In this example the interesting subarrays are: 
-The subarray nums[0..3] which is [3,1,9,6]. 
-- There are three indices, i = 0, 2, 3, in the range [0, 3] that satisfy nums[i] % modulo == k. 
-- Hence, cnt = 3 and cnt % modulo == k. 
-The subarray nums[1..1] which is [1]. 
-- There is no index, i, in the range [1, 1] that satisfies nums[i] % modulo == k. 
-- Hence, cnt = 0 and cnt % modulo == k. 
-It can be shown that there are no other interesting subarrays. So, the answer is 2.</pre>
+### Example 1
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+```python
+Input:
+nums = [3, 2, 4]
+modulo = 2
+k = 1
 
-<ul>
-	<li><code>1 &lt;= nums.length &lt;= 10<sup>5 </sup></code></li>
-	<li><code>1 &lt;= nums[i] &lt;= 10<sup>9</sup></code></li>
-	<li><code>1 &lt;= modulo &lt;= 10<sup>9</sup></code></li>
-	<li><code>0 &lt;= k &lt; modulo</code></li>
-</ul>
+Output: 3
+```
+
+The interesting subarrays are:
+
+```text
+[3]       -> qualifying count = 1 -> 1 % 2 = 1
+[3, 2]    -> qualifying count = 1 -> 1 % 2 = 1
+[3, 2, 4] -> qualifying count = 1 -> 1 % 2 = 1
+```
+
+### Example 2
+
+```python
+Input:
+nums = [3, 1, 9, 6]
+modulo = 3
+k = 0
+
+Output: 2
+```
+
+The interesting subarrays are:
+
+```text
+[3, 1, 9, 6] -> qualifying count = 3 -> 3 % 3 = 0
+[1]          -> qualifying count = 0 -> 0 % 3 = 0
+```
+
+## 3. Approach – Prefix Sum + HashMap + Modulo
+
+We do not need to store the actual values in each subarray. Convert each number into an indicator:
+
+- If `num % modulo == k`, it contributes `1`.
+- Otherwise, it contributes `0`.
+
+Now the problem becomes:
+
+**Count subarrays whose sum of indicators has remainder `k` when divided by `modulo`.**
+
+Use a prefix sum to count how many qualifying elements have appeared so far.
+
+Let:
+- `prefix_sum` be the number of qualifying elements seen so far.
+- `remainder = prefix_sum % modulo`.
+
+For a subarray to be interesting, the difference between the current prefix sum and an earlier prefix sum must have remainder `k`.
+
+```text
+(current_prefix - previous_prefix) % modulo = k
+```
+
+Rearranging:
+
+```text
+previous_prefix % modulo
+    = (current_prefix % modulo - k) % modulo
+```
+
+Therefore, for each current prefix remainder, look up how many earlier prefix sums have the required remainder.
+
+Store the frequency of each prefix remainder in a HashMap.
+
+**Important:** Start with `prefix_count = {0: 1}`. This represents the empty prefix, allowing subarrays that begin at index `0` to be counted.
+
+## 4. Algorithm
+
+1. Initialize `prefix_count = {0: 1}`.
+2. Initialize `prefix_sum = 0` and `result = 0`.
+3. Traverse each number in `nums`.
+4. If `num % modulo == k`, increment `prefix_sum` by `1`.
+5. Calculate the current remainder: `remainder = prefix_sum % modulo`.
+6. Calculate the needed previous remainder: `target = (remainder - k) % modulo`.
+7. Add `prefix_count.get(target, 0)` to `result`.
+8. Increase the frequency of the current `remainder` in the HashMap.
+9. Return `result`.
+
+## 5. Code
+
+```python
+class Solution:
+    def countInterestingSubarrays(self, nums, modulo, k):
+        prefix_count = {0: 1}
+        prefix_sum = 0
+        result = 0
+
+        for num in nums:
+            if num % modulo == k:
+                prefix_sum += 1
+
+            remainder = prefix_sum % modulo
+            target = (remainder - k) % modulo
+
+            result += prefix_count.get(target, 0)
+
+            prefix_count[remainder] = prefix_count.get(remainder, 0) + 1
+
+        return result
+```
+
+## 6. Dry Run
+
+Input:
+
+```python
+nums = [3, 2, 4]
+modulo = 2
+k = 1
+```
+
+### Step 1: Convert numbers into indicators
+
+| Number | Check (`num % 2 == 1`) | Indicator |
+|---:|---|---:|
+| 3 | True | 1 |
+| 2 | False | 0 |
+| 4 | False | 0 |
+
+The indicator sequence is:
+
+```text
+[1, 0, 0]
+```
+
+### Step 2: Initialize
+
+```text
+prefix_sum = 0
+result = 0
+prefix_count = {0: 1}
+```
+
+### Step 3: Process each element
+
+| num | Indicator added | Prefix sum | Remainder | Target `(remainder - 1) % 2` | Added to result |
+|---:|---:|---:|---:|---:|---:|
+| 3 | 1 | 1 | 1 | 0 | 1 |
+| 2 | 0 | 1 | 1 | 0 | 1 |
+| 4 | 0 | 1 | 1 | 0 | 1 |
+
+The remainder `0` initially has frequency `1`, representing the empty prefix. Each of the three current positions finds that matching earlier prefix and contributes one interesting subarray.
+
+Final result:
+
+```python
+return 3
+```
+
+## 7. Complexity
+
+Let `n` be the length of `nums`.
+
+- **Time Complexity: `O(n)`** – We traverse the array once. HashMap lookups and updates take `O(1)` average time.
+- **Space Complexity: `O(min(n, modulo))`** – The HashMap stores frequencies for at most `min(n + 1, modulo)` distinct remainders, which is `O(min(n, modulo))`.
+
+## 8. Pattern
+
+**Prefix Sum + HashMap + Modulo**
+
+Related problems:
+- #560 – Subarray Sum Equals K
+- #523 – Continuous Subarray Sum
+- #974 – Subarray Sums Divisible by K
+- #2845 – Count of Interesting Subarrays
+
+**Key takeaway:** Turn the condition into a prefix sum of qualifying elements. Then use modulo remainders and a frequency HashMap to count valid subarrays in one pass.
+
+Remember the two key lines:
+
+```python
+target = (remainder - k) % modulo
+result += prefix_count.get(target, 0)
+```
+
+The target remainder tells us how many earlier prefix sums can form an interesting subarray ending at the current index.
