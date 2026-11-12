@@ -1,35 +1,169 @@
-<h2><a href="https://leetcode.com/problems/search-insert-position">Search Insert Position</a></h2> <img src='https://img.shields.io/badge/Difficulty-Easy-brightgreen' alt='Difficulty: Easy' /><hr><p>Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.</p>
+# 35. Search Insert Position
 
-<p>You must&nbsp;write an algorithm with&nbsp;<code>O(log n)</code> runtime complexity.</p>
+[LeetCode Problem](https://leetcode.com/problems/search-insert-position/)  
+**Difficulty:** Easy  
+**Topics:** Array, Binary Search
 
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
+---
 
-<pre>
-<strong>Input:</strong> nums = [1,3,5,6], target = 5
-<strong>Output:</strong> 2
-</pre>
+## Question
 
-<p><strong class="example">Example 2:</strong></p>
+Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.
 
-<pre>
-<strong>Input:</strong> nums = [1,3,5,6], target = 2
-<strong>Output:</strong> 1
-</pre>
+You must write an algorithm with **O(log n)** runtime complexity.
 
-<p><strong class="example">Example 3:</strong></p>
+### Example 1
 
-<pre>
-<strong>Input:</strong> nums = [1,3,5,6], target = 7
-<strong>Output:</strong> 4
-</pre>
+```text
+Input: nums = [1,3,5,6], target = 5
+Output: 2
+```
 
-<p>&nbsp;</p>
-<p><strong>Constraints:</strong></p>
+### Example 2
 
-<ul>
-	<li><code>1 &lt;= nums.length &lt;= 10<sup>4</sup></code></li>
-	<li><code>-10<sup>4</sup> &lt;= nums[i] &lt;= 10<sup>4</sup></code></li>
-	<li><code>nums</code> contains <strong>distinct</strong> values sorted in <strong>ascending</strong> order.</li>
-	<li><code>-10<sup>4</sup> &lt;= target &lt;= 10<sup>4</sup></code></li>
-</ul>
+```text
+Input: nums = [1,3,5,6], target = 2
+Output: 1
+```
+
+### Example 3
+
+```text
+Input: nums = [1,3,5,6], target = 7
+Output: 4
+```
+
+### Constraints
+
+- `1 <= nums.length <= 10^4`
+- `-10^4 <= nums[i] <= 10^4`
+- `nums` contains distinct values sorted in ascending order.
+- `-10^4 <= target <= 10^4`
+
+---
+
+## 1. Approach – Binary Search
+
+The array is already sorted, so we can use **Binary Search** to find the correct position in `O(log n)` time.
+
+The key idea is to find the **first index where the element is greater than or equal to the target**.
+
+We use two pointers:
+
+- `left = 0`: beginning of the search range.
+- `right = len(nums)`: end boundary of the search range (exclusive).
+
+At each iteration:
+
+- If `nums[mid] < target`, the target belongs after `mid`, so move `left` to `mid + 1`.
+- Otherwise, the target belongs at `mid` or before it, so move `right` to `mid`.
+
+When the loop ends, `left` is the correct insertion position. If the target exists, this is also its index.
+
+## 2. Algorithm
+
+1. Initialize `left = 0`.
+2. Initialize `right = len(nums)`.
+3. Continue while `left < right`.
+4. Calculate `mid = (left + right) // 2`.
+5. If `nums[mid] < target`, update `left = mid + 1`.
+6. Otherwise, update `right = mid`.
+7. When the loop ends, return `left`.
+
+## 3. Code
+
+```python
+class Solution:
+    def searchInsert(self, nums, target):
+        left = 0
+        right = len(nums)
+
+        while left < right:
+            mid = (left + right) // 2
+
+            if nums[mid] < target:
+                left = mid + 1
+            else:
+                right = mid
+
+        return left
+```
+
+## 4. Example / Dry Run
+
+**Input:**
+
+```python
+nums = [1, 3, 5, 6]
+target = 2
+```
+
+| Iteration | left | right | mid | nums[mid] | Decision |
+|---|---:|---:|---:|---:|---|
+| 1 | 0 | 4 | 2 | 5 | `5 >= 2`, set `right = 2` |
+| 2 | 0 | 2 | 1 | 3 | `3 >= 2`, set `right = 1` |
+| 3 | 0 | 1 | 0 | 1 | `1 < 2`, set `left = 1` |
+
+Now `left == right == 1`, so the loop stops.
+
+**Output:**
+
+```python
+1
+```
+
+The target `2` should be inserted at index `1`, between `1` and `3`.
+
+### Another Quick Example
+
+```python
+nums = [1, 3, 5, 6]
+target = 7
+```
+
+All elements are smaller than `7`, so `left` moves to the end of the array.
+
+**Output:**
+
+```python
+4
+```
+
+The target should be inserted after the last element.
+
+## 5. Why This Works
+
+The array is sorted in ascending order.
+
+- If `nums[mid] < target`, the insertion position must be after `mid`. Therefore, we safely discard the range from `left` through `mid`.
+- If `nums[mid] >= target`, `mid` could be the answer, or the correct position could be earlier. Therefore, we keep `mid` by setting `right = mid`.
+
+The search ends when `left` and `right` meet. This index is the first position whose value is not smaller than the target. If no such element exists, it is `len(nums)`, the position immediately after the array.
+
+## 6. Complexity Analysis
+
+- **Time Complexity: O(log n)** — The search range is approximately halved in every iteration.
+- **Space Complexity: O(1)** — Only a fixed number of variables are used.
+
+## 7. Pattern
+
+**Pattern:** Binary Search – Lower Bound / First Element Greater Than or Equal to Target
+
+This is slightly different from the usual exact-match Binary Search:
+
+| Problem | Main goal |
+|---|---|
+| 704. Binary Search | Find the exact target |
+| 35. Search Insert Position | Find the first position where value is `>= target` |
+| 278. First Bad Version | Find the first version satisfying a condition |
+
+### Important Pointer Updates
+
+```python
+if nums[mid] < target:
+    left = mid + 1
+else:
+    right = mid
+```
+
+**Remember:** We use `right = len(nums)` and `while left < right` because the answer may be `len(nums)` when the target is greater than every element.
