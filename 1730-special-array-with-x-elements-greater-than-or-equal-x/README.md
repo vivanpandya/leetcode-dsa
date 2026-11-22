@@ -5,8 +5,8 @@
 
 ## Topics
 - Array
-- Binary Search
 - Sorting
+- Binary Search
 
 ---
 
@@ -14,7 +14,7 @@
 
 You are given an array of non-negative integers `nums`.
 
-The array is called **special** if there exists an integer `x` such that **exactly `x` elements** in `nums` are greater than or equal to `x`.
+The array is called **special** if there exists an integer `x` such that exactly `x` elements in `nums` are greater than or equal to `x`.
 
 The value `x` does not need to be an element of `nums`.
 
@@ -71,64 +71,67 @@ nums = [0, 4, 3, 0, 4]
 
 ---
 
-## 2. Approach: Sorting + Binary Search
+## 2. Approach: Sorting + Linear Scan
 
-We need to find an integer `x` such that exactly `x` elements are greater than or equal to `x`.
+We need to find a number `x` such that exactly `x` elements in the array are greater than or equal to `x`.
 
 First, sort `nums` in ascending order.
 
-After sorting, if we choose an index `i`, then the number of elements from index `i` to the end is:
+After sorting, smaller values appear at the beginning and larger values appear at the end.
+
+For every index `i`, calculate:
 
 ```python
-count = len(nums) - i
+x = n - i
 ```
 
-Those elements are all greater than or equal to `nums[i]`.
+Here:
+- `n` is the total number of elements.
+- `i` is the current index.
+- `n - i` is the number of elements from index `i` to the end.
 
-For a candidate `x`, we need to check whether the first position containing a value greater than or equal to `x` leaves exactly `x` elements to its right.
+Because the array is sorted, every element from index `i` onward is greater than or equal to `nums[i]`.
 
-We can use binary search over possible values of `x`, from `0` to `n`, where `n = len(nums)`.
+We need to check two conditions:
 
-### Why binary search works
-
-Define `count(x)` as the number of elements in `nums` that are greater than or equal to `x`.
-
-As `x` increases, `count(x)` can only stay the same or decrease.
-
-We need:
-```text
-count(x) == x
+```python
+nums[i] >= x
 ```
 
-If `count(x) > x`, the candidate is too small, so search for a larger `x`.
+The current element must be at least `x`, so all `x` elements from index `i` onward are also at least `x`.
 
-If `count(x) < x`, the candidate is too large, so search for a smaller `x`.
+```python
+i == 0 or nums[i - 1] < x
+```
 
-If they are equal, we found the answer.
+The previous element must be smaller than `x`. This ensures that exactly `x` elements meet the condition, not more.
 
-To calculate `count(x)` efficiently, use a lower-bound binary search on the sorted array to find the first element greater than or equal to `x`.
+If both conditions are true, return `x`.
+
+If no index satisfies both conditions, return `-1`.
 
 ---
 
 ## 3. Algorithm
 
 1. Sort `nums` in ascending order.
-2. Set `n = len(nums)`.
-3. Initialize the binary search range:
-   - `left = 0`
-   - `right = n`
-4. While `left <= right`:
-   1. Calculate `x = (left + right) // 2`.
-   2. Use binary search to find the first index `i` where `nums[i] >= x`.
-   3. Calculate `count = n - i`.
-   4. If `count == x`, return `x`.
-   5. If `count > x`, search larger values by setting `left = x + 1`.
-   6. Otherwise, search smaller values by setting `right = x - 1`.
-5. If no valid value is found, return `-1`.
+2. Calculate `n = len(nums)`.
+3. Traverse the array using index `i` from `0` to `n - 1`.
+4. For each index, calculate:
+   ```python
+   x = n - i
+   ```
+5. Check whether:
+   - `nums[i] >= x`
+   - `i == 0 or nums[i - 1] < x`
+6. If both conditions are true, return `x`.
+7. If the loop finishes without finding a valid value, return `-1`.
 
 ---
 
 ## 4. Python Code
+
+This is the exact code used for submission:
 
 ```python
 class Solution:
@@ -136,32 +139,12 @@ class Solution:
         nums.sort()
 
         n = len(nums)
-        left = 0
-        right = n
 
-        while left <= right:
-            x = (left + right) // 2
+        for i in range(n):
+            x = n - i
 
-            low = 0
-            high = n
-
-            # Find the first index where nums[index] >= x
-            while low < high:
-                mid = (low + high) // 2
-
-                if nums[mid] >= x:
-                    high = mid
-                else:
-                    low = mid + 1
-
-            count = n - low
-
-            if count == x:
+            if nums[i] >= x and (i == 0 or nums[i - 1] < x):
                 return x
-            elif count > x:
-                left = x + 1
-            else:
-                right = x - 1
 
         return -1
 ```
@@ -175,132 +158,84 @@ class Solution:
 nums = [0, 4, 3, 0, 4]
 ```
 
-Sort the array:
+### Step 1: Sort the array
 
 ```python
 nums = [0, 0, 3, 4, 4]
 ```
 
-The array length is:
+The length is:
 
 ```text
 n = 5
 ```
 
-We binary search for `x` in the range `0` to `5`.
+### Step 2: Traverse the array
 
-### Iteration 1
+For each index, calculate `x = n - i` and check the two conditions.
 
-```text
-left = 0
-right = 5
-x = (0 + 5) // 2 = 2
-```
+| `i` | `nums[i]` | `x = n - i` | `nums[i] >= x` | Previous element `< x` | Result |
+|---:|---:|---:|---|---|---|
+| 0 | 0 | 5 | False | Not needed | Continue |
+| 1 | 0 | 4 | False | `0 < 4` is True | Continue |
+| 2 | 3 | 3 | True | `0 < 3` is True | Return `3` |
 
-Find the first element greater than or equal to `2`.
-
-In `[0, 0, 3, 4, 4]`, the first such element is `3` at index `2`.
+At index `2`:
 
 ```text
-count = n - index
-count = 5 - 2 = 3
+x = 5 - 2
+x = 3
 ```
 
-Compare:
+Check the conditions:
 
 ```text
-count = 3
-x = 2
+nums[2] >= x
+3 >= 3  -> True
+
+nums[1] < x
+0 < 3   -> True
 ```
 
-Since `count > x`, we need to try a larger value:
-
-```text
-left = x + 1 = 3
-```
-
-### Iteration 2
-
-```text
-left = 3
-right = 5
-x = (3 + 5) // 2 = 4
-```
-
-Find the first element greater than or equal to `4`.
-
-The first such element is at index `3`.
-
-```text
-count = 5 - 3 = 2
-```
-
-Compare:
-
-```text
-count = 2
-x = 4
-```
-
-Since `count < x`, we need to try a smaller value:
-
-```text
-right = x - 1 = 3
-```
-
-### Iteration 3
-
-```text
-left = 3
-right = 3
-x = (3 + 3) // 2 = 3
-```
-
-Find the first element greater than or equal to `3`.
-
-The first such element is at index `2`.
-
-```text
-count = 5 - 2 = 3
-```
-
-Now:
-
-```text
-count == x
-3 == 3
-```
-
-We found the special value.
+Both conditions are true, so return `3`.
 
 **Output:**
 ```python
 3
 ```
 
-### Dry Run Summary
+### Why do we check the previous element?
 
-| Iteration | `left` | `right` | Candidate `x` | First valid index | Count `>= x` | Decision |
-|---:|---:|---:|---:|---:|---:|---|
-| 1 | 0 | 5 | 2 | 2 | 3 | Count is larger; search higher |
-| 2 | 3 | 5 | 4 | 3 | 2 | Count is smaller; search lower |
-| 3 | 3 | 3 | 3 | 2 | 3 | Found answer |
+Suppose the sorted array is:
+
+```python
+nums = [1, 3, 3, 4]
+```
+
+At index `1`, `x = 3`.
+
+There are three elements from index `1` onward, and all three are at least `3`.
+
+The previous element is `1`, which is smaller than `3`. Therefore, exactly three elements satisfy the condition.
+
+The previous-element check confirms that the count is exactly `x`.
 
 ---
 
 ## 6. Why This Works
 
-After sorting, all elements greater than or equal to a candidate `x` appear together at the end of the array.
+After sorting, all elements greater than or equal to a particular value are grouped together at the end of the array.
 
-The inner binary search finds the first index where `nums[index] >= x`. Therefore, `n - index` is exactly the number of elements that satisfy the condition.
+At index `i`, there are exactly `n - i` elements from that index to the end.
 
-The outer binary search uses the fact that this count never increases when `x` increases:
+We choose this count as the candidate `x`.
 
-- If the count is greater than `x`, we need a larger candidate.
-- If the count is less than `x`, we need a smaller candidate.
-- If the count equals `x`, the definition of a special array is satisfied.
+- `nums[i] >= x` guarantees that all elements from index `i` onward are at least `x`.
+- `i == 0 or nums[i - 1] < x` guarantees that no element before index `i` is also at least `x`.
 
-Thus, the algorithm returns the unique valid `x`, or `-1` if none exists.
+Together, these conditions prove that exactly `x` elements are greater than or equal to `x`.
+
+Therefore, returning `x` is correct. If no index satisfies both conditions, no valid `x` exists, so we return `-1`.
 
 ---
 
@@ -311,38 +246,56 @@ Let `n` be the length of `nums`.
 | Operation | Time Complexity |
 |---|---|
 | Sorting `nums` | `O(n log n)` |
-| Outer binary search | `O(log n)` iterations |
-| Inner binary search per iteration | `O(log n)` |
-| Total binary-search work | `O(log² n)` |
+| Traversing the array | `O(n)` |
+| Checking each candidate | `O(1)` |
 
 **Total Time Complexity:**
 
 ```text
-O(n log n + log² n)
+O(n log n)
 ```
+
+Sorting is the dominant operation.
 
 **Auxiliary Space Complexity:**
 
-- `O(1)` auxiliary space for the binary search variables, excluding the sorting implementation.
-- Python's in-place sort may use additional temporary memory internally.
+```text
+O(1)
+```
+
+The algorithm uses only a constant number of extra variables, excluding any temporary memory used internally by Python's sorting implementation.
 
 ---
 
 ## 8. Pattern and Related Problems
 
-**Pattern: Sorting + Binary Search on Answer**
+**Pattern: Sorting + Counting Elements**
 
 Recognize this pattern when:
-- You need to find a value that satisfies a numerical condition.
-- The count of elements meeting a threshold changes monotonically as the threshold changes.
-- You can use binary search to find the threshold where the required condition becomes true.
+- You need to find a value based on how many array elements satisfy a condition.
+- Sorting makes qualifying elements appear together.
+- The number of qualifying elements can be calculated using an index.
 
 ### Related LeetCode Problems
 
 | Problem | Number | Pattern |
 |---|---:|---|
-| Binary Search | 704 | Basic Binary Search |
-| Find Smallest Letter Greater Than Target | 744 | Upper Bound |
 | H-Index II | 275 | Binary Search on Sorted Array |
-| Special Array With X Elements Greater Than or Equal X | 1608 | Binary Search on Answer |
-| Koko Eating Bananas | 875 | Binary Search on Answer |
+| Find Smallest Letter Greater Than Target | 744 | Binary Search |
+| Special Array With X Elements Greater Than or Equal X | 1608 | Sorting + Counting |
+| H-Index | 274 | Sorting + Counting |
+
+### Important Lines to Remember
+
+Calculate how many elements are in the suffix:
+
+```python
+x = n - i
+```
+
+Check that the current and all following elements are at least `x`, while the previous element is smaller:
+
+```python
+if nums[i] >= x and (i == 0 or nums[i - 1] < x):
+    return x
+```
